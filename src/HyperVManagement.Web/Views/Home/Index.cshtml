@@ -6,6 +6,7 @@
 <div class="list-group">
     @foreach (var psObject in Model)
     {
+
         dynamic item = psObject.BaseObject;
         string style = "panel-success";
         bool isOff = "Off".Equals(item.State.ToString());
