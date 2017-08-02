@@ -1,0 +1,74 @@
+﻿@model System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject>
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="list-group">
+    @foreach (var psObject in Model)
+    {
+        dynamic item = psObject.BaseObject;
+        string style = "panel-success";
+        bool isOff = "Off".Equals(item.State.ToString());
+        if (isOff)
+        {
+            style = "panel-danger";
+        }
+        <div class="list-group-item">
+            <div class="panel @style">
+                <div class="panel-heading">
+                    @(item.Name)        
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            状态:@(item.State)
+                        </div>
+                        <div class="col-md-3">
+                            CPU:@(item.CPUUsage)%
+                        </div>
+                        <div class="col-md-3">
+                            Memory:@(item.MemoryAssigned/1048576)M
+                        </div>
+                        <div class="col-md-3">
+                            运行时间:@(item.Uptime)
+                        </div>
+                    </div>  
+                </div>
+                <div class="panel-footer" data-name="@(item.Name)">
+                    @if (isOff)
+                    {
+                        <button data-command="start">Start</button>
+                    }
+                    else
+                    {
+                        <button data-command="restart">Restart</button>
+                        <button data-command="stop">Stop</button>
+                    }
+                </div>
+            </div>
+            
+        </div>
+    }
+  
+</div>
+@section scripts{
+
+    <script>
+        $("body").delegate("button",
+            "click",
+            function(e) {
+                var sender = $(this);
+                var command = sender.data("command");
+                var name = sender.parent().data("name");
+                $.post("@Url.Action("Command", "Home")",
+                    { command, name },
+                    function(d) {
+                        if (d) {
+                            window.location.reload();
+                        } else {
+                            alert("执行操作失败");
+                        }
+                    });
+            });
+    </script>
+}
